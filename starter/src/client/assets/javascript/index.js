@@ -134,6 +134,7 @@ function runRace(raceID) {
 	}, 500);
 	})
 	// remember to add error handling for the Promise
+	.catch(error => console.log("womp womp an error occured:", error));
 }
 
 async function runCountdown() {
@@ -143,14 +144,16 @@ async function runCountdown() {
 		let timer = 3
 
 		return new Promise(resolve => {
-			// TODO - use Javascript's built in setInterval method to count down once per second
-
-			// run this DOM manipulation inside the set interval to decrement the countdown for the user
-			document.getElementById('big-numbers').innerHTML = --timer
-
-			// TODO - when the setInterval timer hits 0, clear the interval, resolve the promise, and return
-
-		})
+			const countdown = setInterval(() => {
+				document.getElementById('big-numbers').innerHTML = timer;
+				if (timer === 0) {
+					clearInterval(countdown);
+					resolve();
+				} else {
+					timer--;
+				}
+			}, 1000);
+		});
 	} catch(error) {
 		console.log(error);
 	}
@@ -185,6 +188,7 @@ function handleSelectTrack(target) {
 function handleAccelerate() {
 	console.log("accelerate button clicked")
 	// TODO - Invoke the API call to accelerate
+	accelerate(store.race_id)
 }
 
 // HTML VIEWS ------------------------------------------------
@@ -341,7 +345,7 @@ function defaultFetchOpts() {
 function getTracks() {
 	console.log(`calling server :: ${SERVER}/api/tracks`)
 	// GET request to `${SERVER}/api/tracks`
-
+	renderAt( `${SERVER}/api/tracks`)
 	// TODO: Fetch tracks
 	// TIP: Don't forget a catch statement!
 }
