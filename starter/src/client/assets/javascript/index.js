@@ -91,41 +91,47 @@ async function handleCreateRace() {
 	// render starting UI
 	renderAt('#race', renderRaceStartView(store.track_name))
 
-	// TODO - Get player_id and track_id from the store
+	// Get player_id and track_id from the store
+	const { player_id, track_id } = store;
 	
-	// const race = TODO - call the asynchronous method createRace, passing the correct parameters
+	// Call the asynchronous method createRace, passing the correct parameters
+	const race = await createRace(player_id, track_id);
 
-	// TODO - update the store with the race id in the response
+	// update the store with the race id in the response
 	// TIP - console logging API responses can be really helpful to know what data shape you received
 	console.log("RACE: ", race)
-	// store.race_id = 
+	store.race_id = race.ID;
 	
 	// The race has been created, now start the countdown
-	// TODO - call the async function runCountdown
+	// call the async function runCountdown
+	await runCountdown();
 
-	// TODO - call the async function startRace
+	// call the async function startRace
 	// TIP - remember to always check if a function takes parameters before calling it!
+	await startRace(store.race_id);
 
-	// TODO - call the async function runRace
+	// call the async function runRace
+	await runRace(store.race_id);
 }
 
 function runRace(raceID) {
 	return new Promise(resolve => {
-	// TODO - use Javascript's built in setInterval method to get race info (getRace function) every 500ms
-
-	/* 
-		TODO - if the race info status property is "in-progress", update the leaderboard by calling:
-
-		renderAt('#leaderBoard', raceProgress(res.positions))
-	*/
-
-	/* 
-		TODO - if the race info status property is "finished", run the following:
-
-		clearInterval(raceInterval) // to stop the interval from repeating
-		renderAt('#race', resultsView(res.positions)) // to render the results view
-		resolve(res) // resolve the promise
-	*/
+	const raceInterval = setInterval(async () => {
+		try {
+			const res = await getRace(raceID);
+			if (res.status === "in-progress") {
+				renderAt('#leaderBoard', raceProgress(res.positions));
+			} else if (res.status === "finished") {
+				clearInterval(raceInterval);
+				renderAt('#race', resultsView(res.positions));
+				resolve(res);
+			}
+		} catch (error) {
+			console.log("Error in race interval:", error);
+			clearInterval(raceInterval);
+			resolve(null);
+		}
+	}, 500);
 	})
 	// remember to add error handling for the Promise
 }
