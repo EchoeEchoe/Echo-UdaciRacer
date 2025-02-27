@@ -187,7 +187,6 @@ function handleSelectTrack(target) {
 
 function handleAccelerate() {
 	console.log("accelerate button clicked")
-	// TODO - Invoke the API call to accelerate
 	accelerate(store.race_id)
 }
 
@@ -345,16 +344,21 @@ function defaultFetchOpts() {
 function getTracks() {
 	console.log(`calling server :: ${SERVER}/api/tracks`)
 	// GET request to `${SERVER}/api/tracks`
-	renderAt( `${SERVER}/api/tracks`)
-	// TODO: Fetch tracks
-	// TIP: Don't forget a catch statement!
+	// renderAt( `${SERVER}/api/tracks`)
+	return fetch(`${SERVER}/api/tracks`, {
+		...defaultFetchOpts(),
+	})
+	.then(res => res.json())
+	.catch(err => console.log("Problem with getTracks request::", err))
 }
 
 function getRacers() {
 	// GET request to `${SERVER}/api/cars`
-
-	// TODO: Fetch racers
-	// TIP: Do a file search for "TODO" to make sure you find all the things you need to do! There are even some vscode plugins that will highlight todos for you
+	return fetch(`${SERVER}/api/cars`, {
+		...defaultFetchOpts(),
+	})
+	.then(res => res.json())
+	.catch(err => console.log("Problem with getRacers request::", err))
 }
 
 function createRace(player_id, track_id) {
@@ -373,7 +377,11 @@ function createRace(player_id, track_id) {
 }
 
 function getRace(id) {
-	// GET request to `${SERVER}/api/races/${id}`
+	return fetch(`${SERVER}/api/races/${id}`, {
+		...defaultFetchOpts(),
+	})
+	.then(res => res.json())
+	.catch(err => console.log("Problem with getRace request::", err))
 }
 
 function startRace(id) {
@@ -381,11 +389,13 @@ function startRace(id) {
 		method: 'POST',
 		...defaultFetchOpts(),
 	})
-	.then(res => res.json())
-	.catch(err => console.log("Problem with getRace request::", err))
-}
-
 function accelerate(id) {
+	return fetch(`${SERVER}/api/races/${id}/accelerate`, {
+		method: 'POST',
+		...defaultFetchOpts(),
+	})
+	.catch(err => console.log("Problem with accelerate request::", err))
+}
 	// POST request to `${SERVER}/api/races/${id}/accelerate`
 	// options parameter provided as defaultFetchOpts
 	// no body or datatype needed for this request
