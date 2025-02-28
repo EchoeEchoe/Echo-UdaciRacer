@@ -115,24 +115,24 @@ async function handleCreateRace() {
 }
 
 async function runRace(raceID) {
-	return new Promise(resolve => {
-	const raceInterval = setInterval(async () => {
-		try {	
-			const res = await getRace(raceID);
-			console.log(res.status)
-			if (res.status === "in-progress") {
-				renderAt('#leaderBoard', raceProgress(res.positions));
-			} else if (res.status === "finished") {
+	return new Promise((resolve, reject) => {
+		const raceInterval = setInterval(async () => {
+			try {	
+				const res = await getRace(raceID);
+				console.log(res.status)
+				if (res.status === "in-progress") {
+					renderAt('#leaderBoard', raceProgress(res.positions));
+				} else if (res.status === "finished") {
+					clearInterval(raceInterval);
+					renderAt('#race', resultsView(res.positions));
+					resolve(res);
+				}
+			} catch (error) {	
+				console.log("Error in race interval:", error);
 				clearInterval(raceInterval);
-				renderAt('#race', resultsView(res.positions));
-				resolve(res);
+				reject(error);
 			}
-		} catch (error) {	
-			console.log("Error in race interval:", error);
-			clearInterval(raceInterval);
-			resolve(null);
-		}
-	}, 500);
+		}, 500);
 	})
 	// remember to add error handling for the Promise
 	.catch(error => console.log("womp womp an error occured:", error));
@@ -270,7 +270,7 @@ function resultsView(positions) {
 	let userPlayer = positions.find(e => e.id === parseInt(store.player_id))
 	userPlayer.driver_name += " (you)"
 	let count = 1
-	
+  
 	const results = positions.map(p => {
 		return `
 			<tr>
