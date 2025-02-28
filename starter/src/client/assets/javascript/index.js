@@ -117,8 +117,9 @@ async function handleCreateRace() {
 async function runRace(raceID) {
 	return new Promise(resolve => {
 	const raceInterval = setInterval(async () => {
-		try {
+		try {	
 			const res = await getRace(raceID);
+			console.log(res.status)
 			if (res.status === "in-progress") {
 				renderAt('#leaderBoard', raceProgress(res.positions));
 			} else if (res.status === "finished") {
@@ -126,7 +127,7 @@ async function runRace(raceID) {
 				renderAt('#race', resultsView(res.positions));
 				resolve(res);
 			}
-		} catch (error) {
+		} catch (error) {	
 			console.log("Error in race interval:", error);
 			clearInterval(raceInterval);
 			resolve(null);
@@ -266,9 +267,10 @@ function renderRaceStartView(track) {
 }
 
 function resultsView(positions) {
+	let userPlayer = positions.find(e => e.id === parseInt(store.player_id))
 	userPlayer.driver_name += " (you)"
 	let count = 1
-  
+	
 	const results = positions.map(p => {
 		return `
 			<tr>
